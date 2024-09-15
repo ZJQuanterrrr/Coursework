@@ -1,0 +1,82 @@
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+import time
+import numpy as np
+
+
+start = time.time()
+
+# Set the start and end years, and the page capacity
+starty = '1990'
+endy = '2021'
+num = 1
+count = 50
+target = 10000
+num_vote = 5000
+page = 1
+
+movies_lst = []
+
+url = 'http://www.imdb.com/search/title'
+times = int(target/count)
+for i in range(times):
+    
+    params = dict(sort='user_rating,desc,desc', start=num, title_type='feature', num_votes=str(num_vote)+',',
+                      year=starty + ',' + endy)
+    # print(url)
+    # print(params)
+
+    # Use requests to obtain the web content of the provided URL
+    r = requests.get(url, params=params)
+    # print(r)
+
+    # Use BeautifulSoup to extract the content from the HTML
+    bs = BeautifulSoup(r.text, 'html.parser')
+    # print(bs)
+
+    # Analyze the content obtained by bs and extract each movie element according to the webpage structure
+    for movie in bs.findAll('div', {'class':'lister-item-content'}):
+                title = movie.find('a').string
+                year = movie.find('span', {'class':'lister-item-year text-muted unbold'}).string
+
+                # Control the errors returned by the webpage, and check if the genres are empty to avoid issues with data writing
+                if movie.find('span', 'genre') is not None:
+                    genres = movie.find('span', 'genre').string
+                    genres =  genres.strip('\n').strip()
+                else:
+                    genres = 'Not_Known'
+
+                # Control the errors returned by the webpage and check if the runtime is empty to prevent issues with data writing
+                if movie.find('span', 'runtime') is not None:
+                    runtime = movie.find('span', 'runtime').string
+                else:
+                    runtime = 0
+                rating = movie.find('div', {'class':"inline-block ratings-imdb-rating"}).find('strong').string
+
+                # Determine the number of votes and gross revenue for the movie based on different scenarios
+                if len(movie.findAll('span', {'name':"nv"})) == 2:
+                    votes = movie.findAll('span', {'name':"nv"})[0].string
+                    gross = movie.findAll('span', {'name':"nv"})[1].string
+                else:
+                    votes = movie.find('span', {'name':"nv"}).string
+                    gross = np.nan
+
+                # Store all the information in a list
+                movies_lst.append([title, year, genres, runtime, rating, votes, gross])
+                
+    print('page', page, "is done!")
+    
+    num = num + count
+    page = page +1
+    
+    time.sleep(2)
+                
+# print(movies_lst)
+
+# Convert a list to a DataFrame
+movies = pd.DataFrame(movies_lst, columns=['title', 'year', 'genres', 'runtime', 'rating', 'votes', 'gross'])
+# print(movies.head())
+
+end = time.time()
+print("Running time: %s Seconds"%(end - start))
