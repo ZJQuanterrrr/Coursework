@@ -1,0 +1,61 @@
+# Assignment: Write a program to calculate the number of words contained in the following string
+
+
+alphgo = """
+Deep Learning
+
+AlphaGo relies on deep neural networks—networks of hardware and software that mimic the web of neurons in the human brain. With these neural nets, it can learn tasks by analyzing massive amounts of digital data. If you feed enough photos of cow in the neural net, it can learn to recognize a cow. And if you feed it enough Go moves from human players, it can learn the game of Go. But Hassabis and team have also used these techniques to teach AlphaGo how to manage time. And the machine certainly seemed to manage it better than the Korean grandmaster. Its clock still carried sixteen minutes.
+
+The Google machine repeatedly made rather unorthodox moves that the commentators could quite understand. But that too is expected. After training on real human moves, AlphaGo continues its education by playing game after game after game against itself. It learns from a vast trove of moves that it generates on it own—not just from human moves. That means it is sometimes makes moves no human would. This is what allows it to beat a top human like Lee Sedol. But over the course of an individual game, it can also leave humans scratching their heads.
+
+Then AlphaGo's clock ran out. Both players were down to 60 seconds for each move, and Lee Sedol had exceeded his 60 seconds twice. One more, and he would forfeit the game. Soon, the game crossed the four-and-a-half-hour mark, and it looked, for the first time in the match, like the two players would play the game out to the very end without either player resigning. It was that close.
+
+Eyeing the board, Redmond started to count up the points that seemed available to each player, and it appeared that one had an edge. "Unfortunately for Lee Sedol," he said, "I think white might have a slight advantage here." And as the game stretched to five hours, Redmond began to concede victory to AlphaGo. But it was hard to tell, he said, where Lee Sedol had gone wrong. Seconds later, the Korean resigned.
+
+The game showed that AlphaGo is far from infallible. Early in the contest, it made a mistake that even a decent human player would not make. There are holes in its education. But, able to draw on months of play with itself—on a corpus of moves that no human has even seen—it also has the ability to climb out of such a deep hole, even against one of the world's best players. AI is flawed. But it is here.
+"""
+
+def Count_Word_from_String(String_Para):
+    '''
+    Rules: Words connected by a hyphen (e.g., "well-known") and those with an apostrophe (e.g., "AlphaGo's") are considered as a single word, 
+           different forms of a word (plural, gerund, past tense, etc.) are considered as distinct words.
+    '''
+
+    # An English corpus is used to distinguish between words and delimiters
+    English_Words_Dict = ['a', 'b', 'c', 'd', 'e', 'f', 
+                          'g', 'h', 'i', 'j', 'k', 'l', 
+                          'm', 'n', 'o', 'p', 'q', 'r', 
+                          's', 't', 'u', 'v', 'w', 'x', 
+                          'y', 'z', '-', "'"]
+
+    # Turn uppercase into lowercase
+    String_Para = String_Para.lower()
+
+    # Eeach character recognized as part of the corpus is added to a list until a symbol that cannot be part of the corpus is encountered, 
+    # at that point, the characters in the processing factory are extracted, assembled into a word, and added to the word dictionary
+
+    Words_Processing_Fac = []
+    Words_Dict = {}
+    
+    for i in range(0, len(String_Para)):
+        word = String_Para[i: i+1]
+        if word in English_Words_Dict:
+            Words_Processing_Fac.append(word)
+
+        else:
+            if Words_Processing_Fac != []:
+                words = ''
+                for item in Words_Processing_Fac:
+                    words = words + item
+                # If the word does not already exist in the dictionary, it is added; if it does exist, its occurrence count is incremented by 1
+                if words not in Words_Dict.keys():
+                    Words_Dict.update({words: 1})
+                else:
+                    Words_Dict[words] = Words_Dict[words] + 1
+                
+                Words_Processing_Fac = []
+                    
+    print(Words_Dict)
+    print('There are', len(Words_Dict), 'word in this paragraph.')
+    
+    return Words_Dict
